@@ -1,42 +1,45 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "positions")
+@SQLDelete(sql = "UPDATE positions SET is_deleted = true, deleted_at = NOW() WHERE position_id = ?")
+@Where(clause = "is_deleted = false") // Automatically exclude soft-deleted records
 public class Position {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "position_id")
-    private Long positionId;  // Primary key
+    private Long id;
 
-    @Column(name = "position_name", nullable = false)
-    private String positionName;  // The name of the position
+    @Column(name = "position_name", nullable = false, length = 255)
+    private String positionName;
 
-    @Column(name = "is_deleted")
-    private Boolean isDeleted = Boolean.FALSE;  // Default is false (not deleted)
+    @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isDeleted = false;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;  // Time of deletion, if any
+    private LocalDateTime deletedAt;
 
-    // Default constructor (JPA requirement)
-    public Position() {}
 
-    // Parameterized constructor
-    public Position(String positionName, Boolean isDeleted, LocalDateTime deletedAt) {
-        this.positionName = positionName;
-        this.isDeleted = isDeleted;
-        this.deletedAt = deletedAt;
+    // Custom soft delete method
+    public void softDelete() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
     }
 
     // Getters and Setters
-    public Long getPositionId() {
-        return positionId;
+    // (Same as before)
+
+    public Long getId() {
+        return id;
     }
 
-    public void setPositionId(Long positionId) {
-        this.positionId = positionId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getPositionName() {
@@ -47,12 +50,12 @@ public class Position {
         this.positionName = positionName;
     }
 
-    public Boolean getIsDeleted() {
+    public Boolean getDeleted() {
         return isDeleted;
     }
 
-    public void setIsDeleted(Boolean isDeleted) {
-        this.isDeleted = isDeleted;
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
     }
 
     public LocalDateTime getDeletedAt() {
@@ -62,4 +65,5 @@ public class Position {
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
+
 }
