@@ -1,7 +1,8 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.service;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.model.Position;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.repository.PositionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.EntityManager;
+import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -10,18 +11,23 @@ import java.util.List;
 public class PositionService {
 
     PositionRepository positionRepository;
+    private final EntityManager entityManager;
 
-    public PositionService(PositionRepository positionRepository){
+    public PositionService(PositionRepository positionRepository, EntityManager entityManager){
       this.positionRepository = positionRepository;
+      this.entityManager = entityManager;
     }
 
-    public void savePosition(Position position){
-        positionRepository.save(position);
+    public Position createPosition(Position position){
+        return positionRepository.save(position);
 
     }
 
 
     public List<Position> findAll(){
+        Session session = entityManager.unwrap(Session.class);
+        //we need to activate filer before query
+        session.enableFilter("deletedPositionFilter").setParameter("isDeleted", false);
         return positionRepository.findAll();
 
     }

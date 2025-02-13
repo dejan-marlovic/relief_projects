@@ -1,16 +1,18 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.model;
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
+import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import org.apache.logging.log4j.message.Message;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "positions")
 @SQLDelete(sql = "UPDATE positions SET is_deleted = true, deleted_at = NOW() WHERE position_id = ?")
-@Where(clause = "is_deleted = false") // Automatically exclude soft-deleted records
+@FilterDef(name = "deletedPositionFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
+@Filter(name = "deletedPositionFilter", condition = "is_deleted = :isDeleted")
 public class Position {
 
     @Id
@@ -18,7 +20,7 @@ public class Position {
     @Column(name = "position_id")
     private Long id;
 
-    @NotNull(message = "please send position name")
+    @NotNull(message = "Please provide a name for the position you would like to add!")
     @Column(name = "position_name", nullable = false, length = 255)
     private String positionName;
 
@@ -28,6 +30,8 @@ public class Position {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @OneToMany(mappedBy = "position", fetch = FetchType.LAZY)
+    private List<Employee> employees;
 
     // Custom soft delete method
     public void softDelete() {
@@ -35,13 +39,9 @@ public class Position {
         this.deletedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
-    // (Same as before)
-
     public Long getId() {
         return id;
     }
-
 
     public String getPositionName() {
         return positionName;
@@ -51,12 +51,12 @@ public class Position {
         this.positionName = positionName;
     }
 
-    public Boolean getDeleted() {
+    public Boolean getIsDeleted() {
         return isDeleted;
     }
 
-    public void setDeleted(Boolean deleted) {
-        isDeleted = deleted;
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 
     public LocalDateTime getDeletedAt() {
@@ -67,4 +67,11 @@ public class Position {
         this.deletedAt = deletedAt;
     }
 
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
+    }
 }
