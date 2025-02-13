@@ -1,6 +1,9 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.validation.constraints.NotNull;
+import org.apache.logging.log4j.message.Message;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -15,6 +18,7 @@ public class Position {
     @Column(name = "position_id")
     private Long id;
 
+    @NotNull(message = "please send position name")
     @Column(name = "position_name", nullable = false, length = 255)
     private String positionName;
 

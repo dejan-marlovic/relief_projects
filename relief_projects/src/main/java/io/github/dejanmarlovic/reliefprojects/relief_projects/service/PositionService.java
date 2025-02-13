@@ -8,8 +8,12 @@ import java.util.List;
 //Spring will create classes and inject where needed
 @Service
 public class PositionService {
-    @Autowired
+
     PositionRepository positionRepository;
+
+    public PositionService(PositionRepository positionRepository){
+      this.positionRepository = positionRepository;
+    }
 
     public void savePosition(Position position){
         positionRepository.save(position);

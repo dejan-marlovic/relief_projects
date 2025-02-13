@@ -15,10 +15,10 @@ public class SecurityConfig {
         http
                 // Disable CSRF for POST requests if you're not using form submissions (like with Postman)
                 .csrf()
-                .ignoringRequestMatchers("/positions/save_position")  // Disable CSRF for this endpoint
+                .ignoringRequestMatchers("/positions/save_position","positions/add")  // Disable CSRF for this endpoint
                 .and()
                 .authorizeRequests()
-                .requestMatchers("/positions/save_position").permitAll()  // Open access to the /add_position endpoint
+                .requestMatchers("/positions/save_position","/positions/add").permitAll()  // Open access to the /add_position endpoint
                 .anyRequest().authenticated()  // Secure other URLs
                 .and()
                 .formLogin()  // Form-based login
