@@ -1,7 +1,6 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.controller;
-import io.github.dejanmarlovic.reliefprojects.relief_projects.dto.AdditionRequest;
+import io.github.dejanmarlovic.reliefprojects.relief_projects.dto.PositionDTO;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.model.Position;
-import io.github.dejanmarlovic.reliefprojects.relief_projects.service.AdditionService;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.service.PositionService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -9,20 +8,19 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 
-//will serialize responses to json
+//will serialize responses to json, has ReponseBody
 @RestController
 @RequestMapping("api/positions")
 @Validated
 public class PositionController {
 
-    private final AdditionService additionService;
     private final PositionService positionService;
 
-    public PositionController(PositionService positionService, AdditionService additionService){
+    public PositionController(PositionService positionService){
         this.positionService = positionService;
-        this.additionService = additionService;
     }
 
     /**
@@ -31,7 +29,7 @@ public class PositionController {
      * and returns the saved Position in the response.
      *
      * @param position The Position object sent in the request body.
-     * @return ResponseEntity containing the saved Position and HTTP status code.
+     * @return ResponseEntity containing the saved Position as JSON and HTTP status code.
      */
     @PostMapping
     public ResponseEntity<Position> createPosition(@Valid @RequestBody Position position) {
@@ -47,21 +45,34 @@ public class PositionController {
         return ResponseEntity.ok(createdPosition);
     }
 
-    @GetMapping("/positions")
-    public List<Position> findAll() {
-        return positionService.findAll();
-
+    @GetMapping
+    public ResponseEntity<List<PositionDTO>> getAllPositions() {
+        List<Position> positions = positionService.getActivePositions();
+        List<PositionDTO> dtoList = positions.stream()  // Step 1: Convert list to a stream
+                .map(PositionDTO::new)  // Step 2: Transform Position -> PositionDTO
+                .toList();  // Step 3: Collect results into a List
+        return ResponseEntity.ok(dtoList);
     }
 
-    @GetMapping("/find_position")
-    public Position findByName(@RequestParam String name) {
-        return positionService.findByName(name);
+    /**
+     * Retrieves a position by its ID and returns the position as a DTO.
+     * If the position is not found, a 404 Not Found response is returned.
+     *
+     * @param id The ID of the position to retrieve.
+     * @return A ResponseEntity containing the PositionDTO and HTTP status.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<PositionDTO> getPositionById(@PathVariable Long id) {
+        // Fetches the position from the service using its ID
+        Optional<Position> positionOpt = positionService.getPositionById(id);
 
+        // If the position exists, it returns it as a PositionDTO wrapped in an OK response (200)
+        //We are working with Position p inside the optional object from the database and applying the lambda function to it.
+        return positionOpt.map(p -> ResponseEntity.ok(new PositionDTO(p)))
+                // If the position does not exist, returns a "Not Found" (404) response
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-    @PostMapping("/add")
-    public int add(@Valid @RequestBody AdditionRequest request){
-        return additionService.add(request);
-    }
-
 }
+
+
+

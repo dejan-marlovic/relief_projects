@@ -13,20 +13,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Disable CSRF for POST requests if you're not using form submissions (like with Postman)
-                .csrf()
-                .ignoringRequestMatchers("/api/positions")  // Disable CSRF for this endpoint
-                .and()
-                .authorizeRequests()
-                .requestMatchers("/api/positions").permitAll()  // Open access to the /add_position endpoint
-                .anyRequest().authenticated()  // Secure other URLs
-                .and()
-                .formLogin()  // Form-based login
-                .permitAll()
-                .and()
-                .logout()  // Enable logout functionality
-                .permitAll();
+                // Disable CSRF protection for the specified endpoints (useful for APIs)
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/positions/**") // Disable CSRF for all subpaths
+                )
+                // Configure authorization rules
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/positions/**").permitAll() // Allow all endpoints starting with /api/positions/
+                        .anyRequest().authenticated() // Secure other endpoints
+                )
+                // Enable form-based login
+                .formLogin(login -> login.permitAll())
+                // Enable logout functionality
+                .logout(logout -> logout.permitAll());
 
-        return http.build();  // Required in Spring Security 5+
+        return http.build();
     }
 }

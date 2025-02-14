@@ -1,5 +1,6 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
