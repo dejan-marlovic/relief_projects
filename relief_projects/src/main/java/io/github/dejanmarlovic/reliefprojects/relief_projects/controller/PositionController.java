@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-//will serialize responses to json, has ReponseBody
+//will serialize responses to json, has ResponseBody
 @RestController
 @RequestMapping("api/positions")
 @Validated
