@@ -1,4 +1,5 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.service;
+import io.github.dejanmarlovic.reliefprojects.relief_projects.dto.PositionDTO;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.model.Position;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.repository.PositionRepository;
 import jakarta.persistence.EntityManager;
@@ -20,28 +21,57 @@ public class PositionService {
       this.entityManager = entityManager;
     }
 
-    public Position createPosition(Position position){
-        return positionRepository.save(position);
+    //CREATE
 
+    public Optional<PositionDTO> createPosition(PositionDTO createdDTO) {
+        // Create a new Position entity based on the DTO
+        Position createdPosition = new Position();
+        createdPosition.setPositionName(createdDTO.getPositionName());
+
+        // Save the new position to the database
+        try {
+            Position savedPosition = positionRepository.save(createdPosition);
+            return Optional.of(new PositionDTO(savedPosition)); // Return the saved PositionDTO
+        } catch (Exception e) {
+            // In case of any failure (e.g., database issues), return Optional.empty()
+            return Optional.empty();
+        }
     }
 
-    @Transactional
-    public List<Position> getActivePositions() {
-        Session session = entityManager.unwrap(Session.class);
-        session.enableFilter("deletedPositionFilter").setParameter("isDeleted", false);
-        return positionRepository.findAll();
+    //READ
+
+    public Optional<PositionDTO> getPositionById(Long id) {
+        Optional<Position> position = positionRepository.findActiveById(id);
+        return position.map(PositionDTO::new);
     }
 
-    /**
-     * Retrieves a position by its ID.
-     *
-     * @param positionId The ID of the position to fetch.
-     * @return An Optional containing the Position if found, otherwise an empty Optional.
-     */
-    public Optional<Position> getPositionById(Long positionId) {
-        // Calls the repository to find a Position by ID.
-        // Since the result might not exist, it returns an Optional<Position>.
-        return positionRepository.findActiveById(positionId);
+    //UPDATE
+
+    public Optional<PositionDTO> updatePosition(Long id, PositionDTO positionDTO) {
+        Optional<Position> position = positionRepository.findActiveById(id);
+
+        if (position.isPresent()) {
+            Position updatedPosition = position.get();
+            updatedPosition.setPositionName(positionDTO.getPositionName());
+            positionRepository.save(updatedPosition);
+            return Optional.of(new PositionDTO(updatedPosition));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+
+    //DELETE
+
+    public boolean deletePosition(Long id) {
+        Optional<Position> position = positionRepository.findById(id);
+
+        if (position.isPresent()) {
+            positionRepository.delete(position.get());
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
@@ -53,8 +83,21 @@ public class PositionService {
 
     }
 
+
+
+
+
+
     public Position findByName(String name){
         return positionRepository.findByPositionName(name);
 
     }
+
+
+    public Optional<PositionDTO> getActivePositions(Long id) {
+        Optional<Position> position = positionRepository.findActiveById(id);
+        return position.map(PositionDTO::new);
+    }
+
+
 }

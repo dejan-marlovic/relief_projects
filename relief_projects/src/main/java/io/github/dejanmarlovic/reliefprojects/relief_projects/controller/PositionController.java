@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,55 +24,74 @@ public class PositionController {
         this.positionService = positionService;
     }
 
+    //CREATE
+
     /**
      * Handles HTTP POST requests to create a new position.
-     * The method receives a Position object as input, validates it, saves it to the database,
+     * The method receives a PositionDTO object as input, validates it, saves it to the database,
      * and returns the saved Position in the response.
      *
-     * @param position The Position object sent in the request body.
+     * @param positionDTO The positionDTO object sent in the request body.
      * @return ResponseEntity containing the saved Position as JSON and HTTP status code.
      */
     @PostMapping
-    public ResponseEntity<Position> createPosition(@Valid @RequestBody Position position) {
-        // @RequestBody tells Spring to automatically map the incoming JSON body to a Position object.
-        // @Valid ensures the object is validated according to the annotations in the Position class (e.g., @NotNull).
+    public ResponseEntity<PositionDTO> createPosition(@Valid @RequestBody PositionDTO positionDTO) {
+        // Call the service layer to attempt saving the Position
+        Optional<PositionDTO> createdPositionDTO = positionService.createPosition(positionDTO);
 
-        // Call the service layer to handle business logic of saving the Position.
-        Position createdPosition = positionService.createPosition(position);
-
-        // Return a ResponseEntity with the saved Position as the response body.
-        // ResponseEntity.ok() means the HTTP status code will be 200 OK.
-        // It automatically converts the createdPosition into JSON format to send back in the response body.
-        return ResponseEntity.ok(createdPosition);
+        // If creation is successful, return a 201 Created response with the Location header
+        if (createdPositionDTO.isPresent()) {
+            PositionDTO dto = createdPositionDTO.get();
+            URI location = URI.create("/positions/" + dto.getId());
+            return ResponseEntity.created(location).body(dto);
+        } else {
+            // If creation fails, return a 400 Bad Request response
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @GetMapping
-    public ResponseEntity<List<PositionDTO>> getAllPositions() {
-        List<Position> positions = positionService.getActivePositions();
-        List<PositionDTO> dtoList = positions.stream()  // Step 1: Convert list to a stream
-                .map(PositionDTO::new)  // Step 2: Transform Position -> PositionDTO
-                .toList();  // Step 3: Collect results into a List
-        return ResponseEntity.ok(dtoList);
-    }
+    //READ
 
-    /**
-     * Retrieves a position by its ID and returns the position as a DTO.
-     * If the position is not found, a 404 Not Found response is returned.
-     *
-     * @param id The ID of the position to retrieve.
-     * @return A ResponseEntity containing the PositionDTO and HTTP status.
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<PositionDTO> getPositionById(@PathVariable Long id) {
-        // Fetches the position from the service using its ID
-        Optional<Position> positionOpt = positionService.getPositionById(id);
+    public ResponseEntity<PositionDTO> getPosition(@PathVariable Long id) {
+        Optional<PositionDTO> positionDTO = positionService.getPositionById(id);
 
-        // If the position exists, it returns it as a PositionDTO wrapped in an OK response (200)
-        //We are working with Position p inside the optional object from the database and applying the lambda function to it.
-        return positionOpt.map(p -> ResponseEntity.ok(new PositionDTO(p)))
-                // If the position does not exist, returns a "Not Found" (404) response
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (positionDTO.isPresent()) {
+            return ResponseEntity.ok(positionDTO.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
+    //UPDATE
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PositionDTO> updatePosition(@PathVariable Long id, @Valid @RequestBody PositionDTO positionDTO) {
+        Optional<PositionDTO> updatedPositionDTO = positionService.updatePosition(id, positionDTO);
+
+        if (updatedPositionDTO.isPresent()) {
+            return ResponseEntity.ok(updatedPositionDTO.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePosition(@PathVariable Long id) {
+        boolean isDeleted = positionService.deletePosition(id);
+
+        if (isDeleted) {
+            return ResponseEntity.noContent().build();  // 204 No Content
+        } else {
+            return ResponseEntity.notFound().build();  // 404 Not Found
+        }
+    }
+
+
+
+
+
+
 }
 
 
