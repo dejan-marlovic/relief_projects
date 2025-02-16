@@ -7,8 +7,8 @@ import jakarta.validation.constraints.NotNull;
 public class PositionDTO {
     private Long id;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "must not be null change!")
+    @NotBlank(message = "must not be blankW!")
     private String positionName;
 
     public PositionDTO(Position position){
