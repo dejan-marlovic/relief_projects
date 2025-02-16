@@ -3,7 +3,6 @@ import io.github.dejanmarlovic.reliefprojects.relief_projects.dto.PositionDTO;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.model.Position;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.repository.PositionRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 

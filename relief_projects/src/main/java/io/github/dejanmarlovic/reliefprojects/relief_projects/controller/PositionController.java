@@ -1,6 +1,5 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.controller;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.dto.PositionDTO;
-import io.github.dejanmarlovic.reliefprojects.relief_projects.model.Position;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.service.PositionService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +7,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 
 
