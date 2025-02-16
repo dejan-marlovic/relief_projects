@@ -92,6 +92,7 @@ public class PositionService {
         }
     }
 
+
     public List<Position> findAll(){
         Session session = entityManager.unwrap(Session.class);
         //we need to activate filer before query
