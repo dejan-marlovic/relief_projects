@@ -28,11 +28,11 @@ public class PositionController {
 
     /**
      * Handles HTTP POST requests to create a new position.
-     * The method receives a PositionDTO object as input, validates it, saves it to the database,
-     * and returns the saved Position in the response.
+     * The method receives a PositionDTO object as input, validates it,
+     * and returns the saved PositionDTO in the response.
      *
      * @param positionDTO The positionDTO object sent in the request body.
-     * @return ResponseEntity containing the saved Position as JSON and HTTP status code.
+     * @return ResponseEntity containing address to  saved Position resource.
      */
     @PostMapping
     public ResponseEntity<PositionDTO> createPosition(@Valid @RequestBody PositionDTO positionDTO) {
@@ -41,7 +41,9 @@ public class PositionController {
 
         // If creation is successful, return a 201 Created response with the Location header
         if (createdPositionDTO.isPresent()) {
+
             PositionDTO dto = createdPositionDTO.get();
+
             URI location = URI.create("/positions/" + dto.getId());
             return ResponseEntity.created(location).body(dto);
         } else {
@@ -75,6 +77,8 @@ public class PositionController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    //DELETE
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePosition(@PathVariable Long id) {

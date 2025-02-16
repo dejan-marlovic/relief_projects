@@ -6,6 +6,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +44,14 @@ public class PositionService {
 
     public Optional<PositionDTO> getPositionById(Long id) {
         Optional<Position> position = positionRepository.findActiveById(id);
-        return position.map(PositionDTO::new);
+
+        if (position.isPresent()){
+            PositionDTO positionDTO = new PositionDTO(position.get());
+            return Optional.of(positionDTO);
+        }
+        else{
+            return  Optional.empty();
+        }
     }
 
     //UPDATE
@@ -64,16 +73,25 @@ public class PositionService {
     //DELETE
 
     public boolean deletePosition(Long id) {
-        Optional<Position> position = positionRepository.findById(id);
+        Optional<Position> position = positionRepository.findActiveById(id);
 
         if (position.isPresent()) {
-            positionRepository.delete(position.get());
-            return true;
+            //retrieve from optional wrapper
+            Position positionToDelete = position.get();
+
+            // Set the isDeleted flag to true
+            positionToDelete.setIsDeleted(true);
+
+            // Set the deletedAt field to the current date and time
+            positionToDelete.setDeletedAt(LocalDateTime.now());
+
+            // Save the updated entity with both soft delete fields
+            positionRepository.save(positionToDelete);
+            return true; // Return true to indicate successful soft delete
         } else {
-            return false;
+            return false; // Return false if the position wasn't found
         }
     }
-
 
     public List<Position> findAll(){
         Session session = entityManager.unwrap(Session.class);
