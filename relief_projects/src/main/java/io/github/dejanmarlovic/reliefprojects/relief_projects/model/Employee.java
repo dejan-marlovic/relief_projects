@@ -1,15 +1,16 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import jakarta.persistence.Table;
+import org.hibernate.annotations.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "employees")
 @SQLDelete(sql = "UPDATE employees SET is_deleted = true, deleted_at = NOW() WHERE employee_id = ?")
-//// Automatically exclude soft-deleted records
+@FilterDef(name = "deletedEmployeeFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
+@Filter(name="deletedEmployeeFilter", condition = "is_deleted: isDeleted")
 public class Employee {
 
     @Id
@@ -23,6 +24,7 @@ public class Employee {
     @Column(name = "last_name", nullable = false, length = 255)
     private String lastName;
 
+    //One position can be had by many employees. Employee can have only one position.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_id", referencedColumnName = "position_id")
     private Position position;
@@ -41,10 +43,6 @@ public class Employee {
     // Getters and Setters
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getFirstName() {

@@ -1,6 +1,4 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.model;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +19,6 @@ public class Position {
     @Column(name = "position_id")
     private Long id;
 
-    @NotNull(message = "Please provide a name for the position you would like to add!")
     @Column(name = "position_name", nullable = false, length = 255)
     private String positionName;
 
