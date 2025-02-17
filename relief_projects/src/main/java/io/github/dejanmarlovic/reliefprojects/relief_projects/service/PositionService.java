@@ -14,7 +14,7 @@ import java.util.Optional;
 @Service
 public class PositionService {
 
-    PositionRepository positionRepository;
+    private final PositionRepository positionRepository;
     private final EntityManager entityManager;
 
     public PositionService(PositionRepository positionRepository, EntityManager entityManager){

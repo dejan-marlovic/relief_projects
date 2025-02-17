@@ -29,7 +29,7 @@ import java.util.Optional;
 public interface PositionRepository extends JpaRepository<Position, Long> {
     // Custom queries can be added here if needed
 
-    //Position findByPositionName(String positionName);
+    Position findByPositionName(String positionName);
 
     @Query("SELECT p FROM Position p WHERE p.id = :id AND p.isDeleted = false")
     Optional<Position> findActiveById(@Param ("id") Long id);
