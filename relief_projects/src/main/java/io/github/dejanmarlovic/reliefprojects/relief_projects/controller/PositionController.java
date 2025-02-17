@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -62,6 +63,20 @@ public class PositionController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // READ - Get All Active Positions
+    @GetMapping("/active")
+    public ResponseEntity<List<PositionDTO>> getAllActivePositions() {
+        Optional<List<PositionDTO>> activePositions = positionService.findAllActive();
+
+        if (activePositions.isPresent()) {
+            return ResponseEntity.ok(activePositions.get()); // Return 200 OK with the list
+        } else {
+            return ResponseEntity.noContent().build(); // Return 204 No Content if no active positions exist
+        }
+    }
+
+
 
     //UPDATE
 

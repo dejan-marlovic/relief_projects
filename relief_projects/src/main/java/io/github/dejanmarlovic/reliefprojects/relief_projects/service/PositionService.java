@@ -92,19 +92,27 @@ public class PositionService {
         }
     }
 
+    //READ
 
-    public List<Position> findAll(){
+    public Optional<List<PositionDTO>> findAllActive() {
         Session session = entityManager.unwrap(Session.class);
-        //we need to activate filer before query
+
+        // Enable the soft delete filter before querying
         session.enableFilter("deletedPositionFilter").setParameter("isDeleted", false);
-        return positionRepository.findAll();
 
+        List<Position> activePositions = positionRepository.findAll();
+
+        if (activePositions.isEmpty()) {
+            return Optional.empty(); // Return empty Optional if no active positions are found
+        }
+
+        // Convert the list of Position entities to PositionDTOs
+        List<PositionDTO> activePositionDTOs = activePositions.stream()
+                .map(PositionDTO::new)
+                .toList();
+
+        return Optional.of(activePositionDTOs);
     }
-
-
-
-
-
 
     public Position findByName(String name){
         return positionRepository.findByPositionName(name);
