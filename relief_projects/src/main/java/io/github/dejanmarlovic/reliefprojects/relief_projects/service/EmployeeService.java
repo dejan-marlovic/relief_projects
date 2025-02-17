@@ -24,21 +24,22 @@ public class EmployeeService {
         this.positionRepository = positionRepository;
     }
 
-    public Optional<EmployeeDTO> createEmployee(EmployeeDTO createdDTO){
+    public Optional<EmployeeDTO> createEmployee(EmployeeDTO createdDTO) {
         Optional<Position> position = positionRepository.findActiveById(createdDTO.getPositionId());
-        if(position.isPresent()){
+        if (position.isPresent()) {
             Employee createdEmployee = new Employee();
             createdEmployee.setFirstName(createdDTO.getFirstName());
             createdEmployee.setLastName(createdDTO.getLastName());
 
             createdEmployee.setPosition(position.get());
-            try{
+            try {
                 employeeRepository.save(createdEmployee);
                 return Optional.of(new EmployeeDTO(createdEmployee));
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 return Optional.empty();
             }
-        }
+        }else return Optional.empty();
+
     }
 }
