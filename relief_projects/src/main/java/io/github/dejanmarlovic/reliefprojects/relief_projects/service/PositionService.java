@@ -1,5 +1,6 @@
 package io.github.dejanmarlovic.reliefprojects.relief_projects.service;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.dto.PositionDTO;
+import io.github.dejanmarlovic.reliefprojects.relief_projects.dto.PositionMapper;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.model.Position;
 import io.github.dejanmarlovic.reliefprojects.relief_projects.repository.PositionRepository;
 import jakarta.persistence.EntityManager;
@@ -32,7 +33,8 @@ public class PositionService {
         // Save the new position to the database
         try {
             Position savedPosition = positionRepository.save(createdPosition);
-            return Optional.of(new PositionDTO(savedPosition)); // Return the saved PositionDTO
+            return Optional.of(PositionMapper.INSTANCE.
+                    positionToPositionDTO(savedPosition)); // Return the saved PositionDTO
         } catch (Exception e) {
             // In case of any failure (e.g., database issues), return Optional.empty()
             return Optional.empty();
@@ -45,7 +47,8 @@ public class PositionService {
         Optional<Position> position = positionRepository.findActiveById(id);
 
         if (position.isPresent()){
-            PositionDTO positionDTO = new PositionDTO(position.get());
+            PositionDTO positionDTO = PositionMapper.INSTANCE
+                    .positionToPositionDTO(position.get());
             return Optional.of(positionDTO);
         }
         else{
@@ -62,7 +65,8 @@ public class PositionService {
             Position updatedPosition = position.get();
             updatedPosition.setPositionName(positionDTO.getPositionName());
             positionRepository.save(updatedPosition);
-            return Optional.of(new PositionDTO(updatedPosition));
+            return Optional.of(PositionMapper.INSTANCE.
+                    positionToPositionDTO(updatedPosition));
         } else {
             return Optional.empty();
         }
@@ -108,7 +112,7 @@ public class PositionService {
 
         // Convert the list of Position entities to PositionDTOs
         List<PositionDTO> activePositionDTOs = activePositions.stream()
-                .map(PositionDTO::new)
+                .map(PositionMapper.INSTANCE::positionToPositionDTO)
                 .toList();
 
         return Optional.of(activePositionDTOs);
@@ -122,7 +126,7 @@ public class PositionService {
 
     public Optional<PositionDTO> getActivePositions(Long id) {
         Optional<Position> position = positionRepository.findActiveById(id);
-        return position.map(PositionDTO::new);
+        return position.map(PositionMapper.INSTANCE::positionToPositionDTO);
     }
 
 

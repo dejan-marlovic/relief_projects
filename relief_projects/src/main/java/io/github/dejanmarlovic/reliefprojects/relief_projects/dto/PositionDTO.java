@@ -24,4 +24,12 @@ public class PositionDTO {
     public String getPositionName() {
         return positionName;
     }
+
+    public void setPositionName(String positionName) {
+        this.positionName = positionName;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
